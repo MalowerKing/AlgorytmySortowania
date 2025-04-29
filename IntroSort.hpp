@@ -7,27 +7,25 @@ public:
     void startIntroSort(T tab[], unsigned int size);
 
 private:
-    using TP = T*; // Short alias inside the class if you want
-
-    void swapValue(TP a, TP b);
-    void InsertionSort(T arr[], TP begin, TP end);
-    TP Partition(T arr[], int low, int high);
-    TP MedianOfThree(TP a, TP b, TP c);
-    void IntrosortUtil(T arr[], TP begin, TP end, int depthLimit);
-    void sortIntroSort(T arr[], TP begin, TP end);
+    void swapValue(T* a, T* b);
+    void InsertionSort(T arr[], T* begin, T* end);
+    T* Partition(T arr[], int low, int high);
+    T* MedianOfThree(T* a, T* b, T* c);
+    void IntrosortUtil(T arr[], T* begin, T* end, int depthLimit);
+    void sortIntroSort(T arr[], T* begin, T* end);
+        void heapify(T arr[], int n, int i);
+        void heapSort(T arr[], int n);
 };
 
-// Swap two pointers' values
 template<typename T>
-void IntroSort<T>::swapValue(TP a, TP b) {
+void IntroSort<T>::swapValue(T* a, T* b) {
     T temp = *a;
     *a = *b;
     *b = temp;
 }
 
-// Insertion Sort for small partitions
 template<typename T>
-void IntroSort<T>::InsertionSort(T arr[], TP begin, TP end) {
+void IntroSort<T>::InsertionSort(T arr[], T* begin, T* end) {
     int left = begin - arr;
     int right = end - arr;
 
@@ -42,9 +40,8 @@ void IntroSort<T>::InsertionSort(T arr[], TP begin, TP end) {
     }
 }
 
-// Partition function for QuickSort
 template<typename T>
-typename IntroSort<T>::TP IntroSort<T>::Partition(T arr[], int low, int high) {
+T* IntroSort<T>::Partition(T arr[], int low, int high) {
     T pivot = arr[high];
     int i = (low - 1);
 
@@ -58,9 +55,8 @@ typename IntroSort<T>::TP IntroSort<T>::Partition(T arr[], int low, int high) {
     return (arr + i + 1);
 }
 
-// Median-of-three to choose good pivot
 template<typename T>
-typename IntroSort<T>::TP IntroSort<T>::MedianOfThree(TP a, TP b, TP c) {
+T* IntroSort<T>::MedianOfThree(T* a, T* b, T* c) {
     if (*a < *b && *b < *c) return b;
     if (*a < *c && *c <= *b) return c;
     if (*b <= *a && *a < *c) return a;
@@ -69,9 +65,8 @@ typename IntroSort<T>::TP IntroSort<T>::MedianOfThree(TP a, TP b, TP c) {
     return b;
 }
 
-// Core recursive function for Introsort
 template<typename T>
-void IntroSort<T>::IntrosortUtil(T arr[], TP begin, TP end, int depthLimit) {
+void IntroSort<T>::IntrosortUtil(T arr[], T* begin, T* end, int depthLimit) {
     int size = end - begin;
 
     if (size < 16) {
@@ -80,22 +75,20 @@ void IntroSort<T>::IntrosortUtil(T arr[], TP begin, TP end, int depthLimit) {
     }
 
     if (depthLimit == 0) {
-        make_heap(begin, end + 1);
-        sort_heap(begin, end + 1);
+        heapSort(arr,size);
         return;
     }
 
-    TP pivot = MedianOfThree(begin, begin + size / 2, end);
+    T* pivot = MedianOfThree(begin, begin + size / 2, end);
     swapValue(pivot, end);
 
-    TP partitionPoint = Partition(arr, begin - arr, end - arr);
+    T* partitionPoint = Partition(arr, begin - arr, end - arr);
     IntrosortUtil(arr, begin, partitionPoint - 1, depthLimit - 1);
     IntrosortUtil(arr, partitionPoint + 1, end, depthLimit - 1);
 }
 
-// Public start function
 template<typename T>
-void IntroSort<T>::sortIntroSort(T arr[], TP begin, TP end) {
+void IntroSort<T>::sortIntroSort(T arr[], T* begin, T* end) {
     int depthLimit = 2 * log(end - begin);
     IntrosortUtil(arr, begin, end, depthLimit);
 }
@@ -103,4 +96,37 @@ void IntroSort<T>::sortIntroSort(T arr[], TP begin, TP end) {
 template<typename T>
 void IntroSort<T>::startIntroSort(T tab[], unsigned int size) {
     sortIntroSort(tab, tab, tab + size - 1);
+}
+
+template<typename T>
+void IntroSort<T>::heapify(T arr[], int n, int i)
+{
+    int largest = i;     
+        int l = 2 * i + 1;
+    int r = 2 * i + 2; 
+ 
+    if (l < n && arr[l] > arr[largest])
+        largest = l;
+ 
+    if (r < n && arr[r] > arr[largest])
+        largest = r;
+ 
+    if (largest != i) {
+        swap(arr[i], arr[largest]);
+ 
+        heapify(arr, n, largest);
+    }
+}
+ 
+template<typename T>
+void IntroSort<T>::heapSort(T arr[], int n)
+{
+    for (int i = n / 2 - 1; i >= 0; i--)
+        heapify(arr, n, i);
+ 
+    for (int i = n - 1; i >= 0; i--) {
+        swap(arr[0], arr[i]);
+ 
+        heapify(arr, i, 0);
+    }
 }
